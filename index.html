@@ -193,19 +193,19 @@
       }
       .g-anim-left {
         opacity: 0;
-        transform: translateX(-80px);
+        transform: translateX(-45px);
       }
       .g-anim-right {
         opacity: 0;
-        transform: translateX(80px);
+        transform: translateX(45px);
       }
       .g-anim-up-left {
         opacity: 0;
-        transform: translate(-60px, 50px);
+        transform: translate(-35px, 45px);
       }
       .g-anim-up-right {
         opacity: 0;
-        transform: translate(60px, 50px);
+        transform: translate(35px, 45px);
       }
       .g-item.g-in {
         opacity: 1;
@@ -389,9 +389,6 @@
       }
 
       /* ============= MEMPELAI ============= */
-      #mempelai {
-        overflow-x: clip;
-      }
       #mempelai .om {
         font-family: "Cormorant Garamond", serif;
         font-style: italic;
@@ -564,9 +561,6 @@
       }
 
       /* ============= GALERI ============= */
-      #galeri {
-        overflow-x: clip;
-      }
       .gallery-grid {
         columns: 2;
         column-gap: 10px;
@@ -1482,12 +1476,7 @@
           const dir = dirs[i % dirs.length];
           it.className = "g-item " + dir;
           it.dataset.dir = dir;
-          it.innerHTML =
-            '<img src="' +
-            url +
-            '" alt="Galeri ' +
-            (i + 1) +
-            '" loading="lazy">';
+          it.innerHTML = '<img src="' + url + '" alt="Galeri ' + (i + 1) + '">';
           it.addEventListener("click", () => bukaLightbox(i));
           gg.appendChild(it);
         });
@@ -1506,7 +1495,12 @@
               }
             });
           },
-          { threshold: 0.18 },
+          {
+            // rootMargin memberi zona deteksi lebih longgar → konsisten di HP
+            // threshold rendah agar mudah ter-trigger saat scroll cepat
+            threshold: 0.05,
+            rootMargin: "0px 0px -8% 0px",
+          },
         );
         galleryItems.forEach((it) => galObserver.observe(it));
       } else {
