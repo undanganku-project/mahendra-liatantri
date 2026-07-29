@@ -146,6 +146,45 @@
         opacity: 1;
         transform: translateY(0);
       }
+      /* geser dari kiri & kanan (untuk mempelai) */
+      .reveal-left {
+        opacity: 0;
+        transform: translateX(-60px);
+        transition:
+          opacity 1s ease,
+          transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .reveal-right {
+        opacity: 0;
+        transform: translateX(60px);
+        transition:
+          opacity 1s ease,
+          transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .reveal-left.in,
+      .reveal-right.in {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      /* animasi per-elemen (judul, teks, tombol, dll muncul bertahap) */
+      .anim-item {
+        opacity: 0;
+        transform: translateY(18px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .anim-item.in {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .anim-item {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
 
       /* ============= GERBANG PEMBUKA ============= */
       #gerbang {
@@ -230,6 +269,30 @@
         text-align: center;
         padding: 80px 24px;
         position: relative;
+        background-size: cover;
+        background-position: center;
+      }
+      /* overlay gelap agar teks emas tetap terbaca di atas foto */
+      #cover.has-photo::before,
+      #gerbang.has-photo::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(8, 6, 4, 0.72),
+          rgba(8, 6, 4, 0.82)
+        );
+        z-index: 0;
+      }
+      #cover.has-photo > *,
+      #gerbang.has-photo > * {
+        position: relative;
+        z-index: 1;
+      }
+      #gerbang.has-photo {
+        background-size: cover;
+        background-position: center;
       }
       #cover .the-wedding {
         font-size: 12px;
@@ -308,24 +371,39 @@
         margin-top: 56px;
       }
       .photo-frame {
-        width: 190px;
-        height: 238px;
-        margin: 0 auto 22px;
-        border-radius: 2px;
+        width: 200px;
+        height: 260px;
+        margin: 0 auto 24px;
+        /* lengkung atas seperti gapura Bali — elegan */
+        border-radius: 100px 100px 6px 6px;
         position: relative;
         overflow: hidden;
         background: linear-gradient(160deg, #1b170e, #0d0b07);
-        border: 1px solid var(--line);
+        border: 1px solid var(--gold-deep);
         display: flex;
         align-items: center;
         justify-content: center;
         color: var(--gold-deep);
         box-shadow: var(--shadow);
       }
+      /* bingkai emas ganda di dalam */
+      .photo-frame::after {
+        content: "";
+        position: absolute;
+        inset: 7px;
+        border: 1px solid rgba(201, 162, 75, 0.5);
+        border-radius: 94px 94px 3px 3px;
+        pointer-events: none;
+        z-index: 2;
+      }
       .photo-frame img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: transform 0.8s ease;
+      }
+      .photo-frame:hover img {
+        transform: scale(1.06);
       }
       .photo-frame .ph-label {
         position: absolute;
@@ -446,31 +524,90 @@
 
       /* ============= GALERI ============= */
       .gallery-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        columns: 2;
+        column-gap: 10px;
         margin-top: 34px;
       }
       .g-item {
-        aspect-ratio: 3/4;
-        border-radius: 2px;
+        break-inside: avoid;
+        margin-bottom: 10px;
+        border-radius: 3px;
         overflow: hidden;
         background: linear-gradient(160deg, #1b170e, #0d0b07);
+        border: 1px solid var(--line);
+        transition:
+          transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+          box-shadow 0.5s,
+          opacity 0.7s ease;
+        cursor: pointer;
+        position: relative;
+      }
+      /* animasi masuk galeri (muncul + naik) */
+      .g-item.g-hidden {
+        opacity: 0;
+        transform: translateY(28px) scale(0.96);
+      }
+      .g-item.g-show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      /* placeholder kosong (sebelum ada foto) tetap rapi */
+      .g-item.placeholder {
+        aspect-ratio: 3/4;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         color: var(--gold-deep);
-        border: 1px solid var(--line);
-        transition: transform 0.4s;
-      }
-      .g-item:hover {
-        transform: translateY(-3px);
+        cursor: default;
       }
       .g-item img {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
+        display: block;
+        transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      /* overlay emas + ikon zoom saat hover */
+      .g-item::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(201, 162, 75, 0) 40%,
+          rgba(10, 8, 5, 0.55) 100%
+        );
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 1;
+      }
+      .g-item::after {
+        content: "⤢";
+        position: absolute;
+        bottom: 10px;
+        right: 12px;
+        color: var(--gold-bright);
+        font-size: 18px;
+        opacity: 0;
+        transform: translateY(6px);
+        transition:
+          opacity 0.4s ease,
+          transform 0.4s ease;
+        z-index: 2;
+      }
+      .g-item:not(.placeholder):hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 38px -16px rgba(0, 0, 0, 0.85);
+        border-color: var(--gold-deep);
+      }
+      .g-item:not(.placeholder):hover img {
+        transform: scale(1.08);
+      }
+      .g-item:not(.placeholder):hover::before {
+        opacity: 1;
+      }
+      .g-item:not(.placeholder):hover::after {
+        opacity: 0.9;
+        transform: translateY(0);
       }
       .g-item span {
         font-size: 9px;
@@ -479,10 +616,67 @@
         color: var(--cream-soft);
         margin-top: 8px;
       }
-      .g-item.wide {
-        aspect-ratio: auto;
-        grid-column: span 2;
-        min-height: 200px;
+
+      /* ============= LIGHTBOX ============= */
+      #lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(6, 5, 3, 0.94);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        overflow: hidden;
+        overscroll-behavior: contain;
+        touch-action: none;
+      }
+      #lightbox.show {
+        display: flex;
+        opacity: 1;
+      }
+      #lightbox img {
+        max-width: 92vw;
+        max-height: 82vh;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border-radius: 3px;
+        box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.9);
+        user-select: none;
+        -webkit-user-drag: none;
+      }
+      #lightbox .lb-close {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        color: var(--gold-bright);
+        font-size: 34px;
+        line-height: 1;
+        cursor: pointer;
+        font-family: "Cormorant Garamond", serif;
+      }
+      #lightbox .lb-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gold-bright);
+        font-size: 44px;
+        cursor: pointer;
+        user-select: none;
+        padding: 0 18px;
+        opacity: 0.8;
+      }
+      #lightbox .lb-nav:hover {
+        opacity: 1;
+      }
+      #lightbox .lb-prev {
+        left: 6px;
+      }
+      #lightbox .lb-next {
+        right: 6px;
       }
 
       /* ============= RSVP ============= */
@@ -608,6 +802,24 @@
       #penutup {
         text-align: center;
         padding: 100px 28px;
+        position: relative;
+        z-index: 1;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+      #penutup.has-photo::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(8, 6, 4, 0.82),
+          rgba(8, 6, 4, 0.9)
+        );
+        z-index: 0;
+      }
+      #penutup.has-photo > * {
         position: relative;
         z-index: 1;
       }
@@ -751,7 +963,7 @@
       <p class="intro" id="mempelai-intro"></p>
       <div class="divider"><span class="dot"></span></div>
 
-      <div class="couple-card">
+      <div class="couple-card reveal-left">
         <div class="photo-frame" id="groom-photo">
           <svg
             width="34"
@@ -774,7 +986,7 @@
 
       <div class="amp-mid">&amp;</div>
 
-      <div class="couple-card">
+      <div class="couple-card reveal-right">
         <div class="photo-frame" id="bride-photo">
           <svg
             width="34"
@@ -942,6 +1154,18 @@
       <div class="names-sm" id="footer-names">Mahendra &amp; Lia Tantri</div>
     </footer>
 
+    <!-- Lightbox untuk galeri -->
+    <div id="lightbox" onclick="tutupLightbox(event)">
+      <span class="lb-close" onclick="tutupLightbox(event)">&times;</span>
+      <span class="lb-nav lb-prev" onclick="geserLightbox(event, -1)"
+        >&#8249;</span
+      >
+      <img id="lightbox-img" src="" alt="Foto galeri" />
+      <span class="lb-nav lb-next" onclick="geserLightbox(event, 1)"
+        >&#8250;</span
+      >
+    </div>
+
     <button id="music-toggle" onclick="toggleMusik()" aria-label="Putar musik">
       <svg
         viewBox="0 0 24 24"
@@ -953,8 +1177,8 @@
         <circle cx="12" cy="12" r="2.4" fill="currentColor" />
       </svg>
     </button>
-    <audio id="bg-audio" loop preload="none">
-      <source src="" type="audio/mpeg" />
+    <audio id="bg-audio" loop preload="auto">
+      <source src="foto/musik.mp3" type="audio/mpeg" />
     </audio>
 
     <script>
@@ -968,16 +1192,21 @@
           parents:
             "Anak dari pasangan<br><b>Bapak Ida Bagus Ketut Wiyasa</b><br>&amp;<br><b>Ibu Gusti Ayu Komang Budi Adi Ningsih</b>",
           address: "Jln Kertanegara Gang Erlangga No 14, Ubung Kaja",
-          photo: "",
-        }, // isi URL/nama file foto, mis "foto/pria.jpg"
+          photo: "foto/pria.jpg",
+        },
         bride: {
           name: "Liani Tantri Shancari, S.M",
           nickname: "Lia Tantri",
           parents:
             "Anak dari pasangan<br><b>Bapak I Komang Wijaya</b><br>&amp;<br><b>Ibu Ni Nyoman Marantini</b>",
           address: "Jln Tukad Pule Gang Teratai Jingga No 1",
-          photo: "",
+          photo: "foto/wanita.jpg",
         },
+
+        // foto latar (opsional). Kosongkan "" bila tak ingin ada latar foto.
+        coverPhoto: "foto/cover.jpg", // latar halaman hero
+        gerbangPhoto: "foto/pembuka.jpg", // latar gerbang pembuka
+        penutupPhoto: "foto/penutup.jpg", // (disiapkan, opsional dipakai)
 
         familyGroom: "Keluarga Bapak Ida Bagus Ketut Wiyasa",
         familyBride: "Keluarga Bapak I Komang Wijaya",
@@ -1015,7 +1244,27 @@
         ],
 
         // Isi dengan URL/nama file foto. Kosongkan array bila belum ada foto.
-        gallery: [],
+        gallery: [
+          "foto/galeri1.jpg",
+          "foto/galeri2.jpg",
+          "foto/galeri3.jpg",
+          "foto/galeri4.jpg",
+          "foto/galeri5.jpg",
+          "foto/galeri6.jpg",
+          "foto/galeri7.jpg",
+          "foto/galeri8.jpg",
+          "foto/galeri9.jpg",
+          "foto/galeri10.jpg",
+          "foto/galeri11.jpg",
+          "foto/galeri12.jpg",
+          "foto/galeri13.jpg",
+          "foto/galeri14.jpg",
+          "foto/galeri15.jpg",
+          "foto/galeri16.jpg",
+          "foto/galeri17.jpg",
+          "foto/galeri18.jpg",
+          "foto/galeri19.jpg",
+        ],
 
         bankAccounts: [
           {
@@ -1077,13 +1326,38 @@
       setPhoto("groom-photo", CONFIG.groom.photo, "Mempelai Pria");
       setPhoto("bride-photo", CONFIG.bride.photo, "Mempelai Wanita");
 
+      /* foto latar cover & gerbang bila ada */
+      function setBg(elId, url) {
+        if (!url) return;
+        const el = $(elId);
+        el.style.backgroundImage = "url('" + url + "')";
+        el.classList.add("has-photo");
+      }
+      setBg("cover", CONFIG.coverPhoto);
+      setBg("gerbang", CONFIG.gerbangPhoto);
+      setBg("penutup", CONFIG.penutupPhoto);
+
       /* -------- buka gerbang -------- */
       function bukaUndangan() {
         $("gerbang").classList.add("buka");
         document.body.style.overflow = "auto";
         const a = $("bg-audio");
-        a.play().catch(() => {});
-        $("music-toggle").classList.add("spinning");
+        a.play()
+          .then(() => {
+            $("music-toggle").classList.add("spinning");
+          })
+          .catch(() => {
+            // Sebagian browser memblokir autoplay; coba lagi saat sentuhan pertama
+            const resume = () => {
+              a.play()
+                .then(() => $("music-toggle").classList.add("spinning"))
+                .catch(() => {});
+              document.removeEventListener("touchstart", resume);
+              document.removeEventListener("click", resume);
+            };
+            document.addEventListener("touchstart", resume, { once: true });
+            document.addEventListener("click", resume, { once: true });
+          });
       }
       document.body.style.overflow = "hidden";
 
@@ -1138,19 +1412,48 @@
         ec.appendChild(c);
       });
 
-      /* -------- galeri -------- */
+      /* -------- galeri (mendukung campuran potrait & landscape) -------- */
       const gg = $("gallery-grid");
+      let galleryUrls = [];
       if (CONFIG.gallery.length) {
+        galleryUrls = CONFIG.gallery.slice();
         CONFIG.gallery.forEach((url, i) => {
           const it = document.createElement("div");
-          it.className = "g-item" + (i % 5 === 0 ? " wide" : "");
-          it.innerHTML = '<img src="' + url + '" alt="Galeri ' + (i + 1) + '">';
+          it.className = "g-item g-hidden";
+          it.innerHTML =
+            '<img src="' +
+            url +
+            '" alt="Galeri ' +
+            (i + 1) +
+            '" loading="lazy">';
+          it.addEventListener("click", () => bukaLightbox(i));
           gg.appendChild(it);
         });
+
+        /* animasi muncul bertahap saat galeri masuk layar */
+        const galleryItems = gg.querySelectorAll(".g-item");
+        const galObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const items = Array.from(galleryItems);
+                const idx = items.indexOf(entry.target);
+                const delay = (idx % 4) * 120; // efek berjenjang
+                setTimeout(() => {
+                  entry.target.classList.remove("g-hidden");
+                  entry.target.classList.add("g-show");
+                }, delay);
+                galObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.15 },
+        );
+        galleryItems.forEach((it) => galObserver.observe(it));
       } else {
         for (let i = 0; i < 6; i++) {
           const it = document.createElement("div");
-          it.className = "g-item";
+          it.className = "g-item placeholder";
           it.innerHTML =
             '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="5" width="18" height="14" rx="1.5"/><circle cx="8.5" cy="10" r="1.7"/><path d="M21 16l-5.5-5-4 4L9 12l-6 6"/></svg><span>Foto ' +
             (i + 1) +
@@ -1158,6 +1461,35 @@
           gg.appendChild(it);
         }
       }
+
+      /* -------- lightbox -------- */
+      let lbIndex = 0;
+      function bukaLightbox(i) {
+        if (!galleryUrls.length) return;
+        lbIndex = i;
+        $("lightbox-img").src = galleryUrls[lbIndex];
+        $("lightbox").classList.add("show");
+        document.body.style.overflow = "hidden"; // kunci scroll halaman
+      }
+      function tutupLightbox(e) {
+        // hanya tutup bila klik area gelap / tombol close, bukan gambar
+        if (e && e.target && e.target.id === "lightbox-img") return;
+        $("lightbox").classList.remove("show");
+        document.body.style.overflow = "auto"; // buka lagi scroll
+      }
+      function geserLightbox(e, dir) {
+        e.stopPropagation();
+        lbIndex = (lbIndex + dir + galleryUrls.length) % galleryUrls.length;
+        $("lightbox-img").src = galleryUrls[lbIndex];
+      }
+      document.addEventListener("keydown", (e) => {
+        if (!$("lightbox").classList.contains("show")) return;
+        if (e.key === "Escape") tutupLightbox();
+        if (e.key === "ArrowLeft") geserLightbox(e, -1);
+        if (e.key === "ArrowRight") geserLightbox(e, 1);
+      });
+      window.tutupLightbox = tutupLightbox;
+      window.geserLightbox = geserLightbox;
 
       /* -------- kado digital -------- */
       const bc = $("bank-container");
@@ -1289,25 +1621,69 @@
         const a = $("bg-audio"),
           b = $("music-toggle");
         if (a.paused) {
-          a.play().catch(() =>
-            alert("Tambahkan file musik pada tag <audio> dulu."),
-          );
-          b.classList.add("spinning");
+          a.play()
+            .then(() => b.classList.add("spinning"))
+            .catch(() => {});
         } else {
           a.pause();
           b.classList.remove("spinning");
         }
       }
 
-      /* -------- reveal saat scroll -------- */
+      /* -------- reveal saat scroll (animasi aktif ulang tiap masuk layar) -------- */
       const io = new IntersectionObserver(
         (es) =>
           es.forEach((e) => {
-            if (e.isIntersecting) e.target.classList.add("in");
+            if (e.isIntersecting) {
+              e.target.classList.add("in");
+            } else {
+              // hapus kelas saat elemen keluar layar → animasi berulang saat kembali
+              e.target.classList.remove("in");
+            }
           }),
         { threshold: 0.12 },
       );
-      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+      document
+        .querySelectorAll(".reveal, .reveal-left, .reveal-right")
+        .forEach((el) => io.observe(el));
+
+      /* -------- animasi berjenjang untuk tiap tulisan/elemen -------- */
+      // Tandai anak-anak langsung dari tiap <section>/footer sebagai anim-item,
+      // kecuali yang sudah punya animasi khusus (mempelai geser, galeri).
+      const skipSelector =
+        ".reveal-left, .reveal-right, #gallery-grid, #countdown";
+      document.querySelectorAll("section, footer").forEach((sec) => {
+        // lewati hero & gerbang (harus langsung tampil)
+        if (sec.id === "cover" || sec.id === "gerbang") return;
+        const kids = Array.from(sec.children).filter(
+          (k) => !k.matches(skipSelector) && !k.classList.contains("anim-item"),
+        );
+        kids.forEach((k) => k.classList.add("anim-item"));
+      });
+
+      // Observer khusus: saat elemen masuk layar, munculkan bertahap
+      const itemObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              // hitung urutan di dalam parent untuk efek berjenjang
+              const parent = entry.target.parentElement;
+              const siblings = Array.from(
+                parent.querySelectorAll(":scope > .anim-item"),
+              );
+              const idx = siblings.indexOf(entry.target);
+              const delay = Math.min(idx, 6) * 100;
+              setTimeout(() => entry.target.classList.add("in"), delay);
+            } else {
+              entry.target.classList.remove("in");
+            }
+          });
+        },
+        { threshold: 0.15 },
+      );
+      document
+        .querySelectorAll(".anim-item")
+        .forEach((el) => itemObserver.observe(el));
     </script>
   </body>
 </html>
