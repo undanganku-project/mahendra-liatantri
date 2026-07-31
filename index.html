@@ -1357,6 +1357,12 @@
         ],
       };
 
+      /* -------- selalu mulai dari atas (cegah browser mengingat posisi scroll) -------- */
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "manual";
+      }
+      window.scrollTo(0, 0);
+
       /* -------- personalisasi nama tamu (?to=Nama) -------- */
       const params = new URLSearchParams(window.location.search);
       const guestName = params.get("to")
@@ -1416,8 +1422,20 @@
 
       /* -------- buka gerbang -------- */
       function bukaUndangan() {
+        // pastikan mulai dari halaman paling atas
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+
         $("gerbang").classList.add("buka");
+        // buka kembali scroll (hapus semua kunci)
+        document.documentElement.style.overflow = "";
         document.body.style.overflow = "auto";
+        document.body.style.position = "";
+        document.body.style.width = "";
+        document.body.style.top = "";
+        window.scrollTo(0, 0);
+
         const a = $("bg-audio");
         a.play()
           .then(() => {
@@ -1436,7 +1454,13 @@
             document.addEventListener("click", resume, { once: true });
           });
       }
+      // kunci scroll sebelum undangan dibuka (metode paling andal untuk HP)
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+      document.body.style.top = "0";
+      window.scrollTo(0, 0);
 
       /* -------- countdown -------- */
       function updateCountdown() {
